@@ -1,0 +1,231 @@
+body {
+    margin: 0;
+    background-color: #171717;
+}
+
+main {
+    background-color: #1d1d1d;
+    height: calc(100% - 22px - 22px);
+    width: calc(100% - 280px - 23px - 22px);
+    position: fixed;
+    border-radius: 10px;
+    right: 22px;
+    top: 22px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sub {
+    display: flex;
+    bottom: 0;
+    position: relative;
+    width: calc(100% - 60px);
+    height: 120px;
+    padding: 30px;
+    padding-top: 1px;
+}
+
+.message {
+    color: white;
+    font-family: "Montserrat";
+    font-weight: 500;
+    font-size: 16px;
+    width: auto;
+    position: relative;
+    text-wrap: wrap;
+    word-wrap: break-word;
+    padding: 10px;
+}
+
+.chat {
+    position: relative;
+    height: 100%;
+    width: calc(100% - 60px);
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    gap: 30px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.subbutton {
+    width: 50px;
+    background-color: white;
+    height: 50px;
+    transition: all 0.3s ease;
+    border-radius: 1000px;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+}
+.subbutton:hover {
+    width: 140px;
+    transition: all 0.3s ease;
+
+    .text_submit {
+        color: black;
+        transform: translateX(-6px);
+        transition: all 0.8s ease;
+    }
+}
+
+::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(63, 63, 63);
+}
+
+.search {
+    resize: none;
+    border: none;
+    padding: 20px;
+    width: calc(100% - 18px - 22px - 60px);
+    border-radius: 10px;
+    background-color: #1d1d1dda;
+    backdrop-filter: blur(12px);
+    outline: #353535 1px solid;
+    margin-right: 30px;
+    color: white;
+    font-family: "Montserrat";
+    font-weight: 500;
+    font-size: 16px;
+}
+.search:focus {
+    outline-style: solid;
+    outline-color: #4d4d4d;
+    outline-width: 1px;
+}
+.search::placeholder {
+    color: rgb(146, 146, 146);
+}
+
+nav {
+    background-color: #171717;
+    border-right: #212121 1px solid;
+    height: 100%;
+    position: fixed;
+    width: 280px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.create {
+    background-color: #57575736;
+    backdrop-filter: blur(6px);
+    border: solid 1px #4d4d4d;
+    border-radius: 1000px;
+    height: 36px;
+    width: 36px;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    right: 22px;
+    top: 22px;
+}
+.rect {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rect1 {
+    background-color: rgb(221, 221, 221);
+    height: 2px;
+    width: 54%;
+    border-radius: 1000px;
+    position: absolute;
+}
+
+.rect2 {
+    background-color: rgb(221, 221, 221);
+    height: 54%;
+    width: 2px;
+    border-radius: 1000px;
+    position: absolute;
+}
+
+.loader {
+    background-color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: slide 0.6s ease-in-out infinite;
+    position: absolute;
+}
+
+@keyframes slide {
+    0%, 100% {
+        left: 0;
+    }
+    50% {
+        left: 40px; /* Ajustez ceci selon la largeur du conteneur de l'animation */
+    }
+}
+
+.message {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.user {
+    border-radius: 0;
+    border-right: white solid 3px;
+    text-align: right;
+}
+
+.response {
+    text-align: left;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+table {
+    border-collapse: collapse;
+    border: none;
+    width: fit-content;
+}
+
+  table td, table th {
+    border: 1px solid rgb(71, 71, 71); /* Bordures de cellules */
+    background-color: transparent; /* Fond transparent */
+    padding: 12px;
+  }
+
+.icon_submit {
+    height: calc(50px - 26px);
+    padding: 13px;
+    right: 0;
+    transform: translateY(2px) translateX(-1px);
+}
+
+.text_submit {
+    font-family: "Montserrat";
+    font-weight: 600;
+    font-size: 15px;
+    color: white;
+    transition: all 0.8s ease;
+}
+  
