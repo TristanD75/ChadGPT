@@ -20,6 +20,10 @@
         </button>
     </nav>
     <main>
+        <div class="fleche" id="close">
+            <div class="top-bar"></div>
+            <div class="bottom-bar"></div>
+        </div>
         <div class="chat">
             <div class="loader" id="loading" style="display: none;"></div> <!-- Zone d'affichage des réponses de l'IA -->
         </div>
@@ -31,26 +35,63 @@
             </button>
         </div>
     </main>
-    <script>
-        const sessionId = 'session_' + Date.now();
-        const ws = new WebSocket('ws://localhost:8765');
-        const chatDiv = document.querySelector('.chat');
-        let shouldScroll; // Sélection du conteneur de chat
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        var main = document.querySelector('main');
+        var nav = document.querySelector('nav');
+        var fleche = document.querySelector('.fleche');
+        var topBar = document.querySelector('.top-bar');
+        var bottomBar = document.querySelector('.bottom-bar');
+        var isExpanded = false; // État pour suivre si main est expandu
 
-        document.getElementById('userInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Empêcher la création d'une nouvelle ligne dans le champ de saisie
-                handleSendButtonClick(); // Appeler la fonction d'envoi du message
+        fleche.addEventListener('click', function() {
+            if (!isExpanded) {
+                main.style.width = 'calc(100% - 44px)';
+                nav.style.display = 'none';
+                isExpanded = true;
+            } else {
+                nav.style.display = 'block';
+                main.style.width = 'calc(100% - 280px - 23px - 22px)'; // Réinitialisez à la largeur initiale
+                isExpanded = false;
             }
         });
 
+
+        fleche.addEventListener('mouseover', function() {
+            if (isExpanded) {
+                topBar.style.transform = 'rotate(-30deg)';
+                bottomBar.style.transform = 'rotate(30deg)';
+            } else {
+                topBar.style.transform = 'rotate(30deg)';
+                bottomBar.style.transform = 'rotate(-30deg)';
+            }
+        });
+
+        fleche.addEventListener('mouseout', function() {
+            topBar.style.transform = 'rotate(0deg)';
+            bottomBar.style.transform = 'rotate(0deg)';
+        });
+
+    });
+
+        document.getElementById('userInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // Empêcher la création d'une nouvelle ligne
+                handleSendButtonClick(); // Envoyer le message
+            }
+        });
+
+        const ws = new WebSocket('ws://localhost:8765');
+        const chatDiv = document.querySelector('.chat');
+        let shouldScroll;
+
         ws.onopen = function() {
-            ws.send(sessionId);
+            ws.send('session_' + Date.now());
         };
 
         ws.onmessage = function(event) {
-            const responseElement = document.querySelector('.response.loading'); // Trouver l'élément de réponse avec loading
-            parseAndDisplayTable(event.data, responseElement); // Utiliser la fonction de parsing pour afficher le tableau ou le texte
+            const responseElement = document.querySelector('.response.loading');
+            parseAndDisplayTable(event.data, responseElement);
             responseElement.classList.remove('loading');
             if (shouldScroll) {
                 chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -60,15 +101,14 @@
         function handleSendButtonClick() {
             const userInput = document.getElementById('userInput');
             if (userInput.value.trim() !== '') {
-                shouldScroll = chatDiv.scrollHeight - chatDiv.clientHeight <= chatDiv.scrollTop + 60; // Était près du bas
-                createMessageElement(userInput.value, 'user'); // Créer un élément pour le message utilisateur
-                const responseElement = createMessageElement('', 'response loading'); // Préparer l'espace pour la réponse de l'IA
-                addLoadingSpinner(responseElement); // Ajouter l'animation de chargement dans l'espace de la réponse
+                shouldScroll = chatDiv.scrollHeight - chatDiv.clientHeight <= chatDiv.scrollTop + 60;
+                createMessageElement(userInput.value, 'user');
+                const responseElement = createMessageElement('', 'response loading');
+                addLoadingSpinner(responseElement);
                 ws.send(userInput.value);
-                userInput.value = ''; // Effacer la zone de texte après l'envoi
-
+                userInput.value = '';
                 if (shouldScroll) {
-                    chatDiv.scrollTop = chatDiv.scrollHeight; // Faire défiler vers le bas
+                    chatDiv.scrollTop = chatDiv.scrollHeight;
                 }
             }
         }
@@ -76,52 +116,48 @@
         function createMessageElement(text, type) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
-            messageDiv.textContent = text;
-
             if (type.includes('response')) {
                 messageDiv.classList.add('response');
             } else {
                 messageDiv.classList.add('user');
             }
-
             if (type.includes('loading')) {
-                messageDiv.classList.add('loading'); // Indique que cet élément est en chargement
+                messageDiv.classList.add('loading');
             }
-
+            text.split('').forEach((letter, index) => {
+                const letterSpan = document.createElement('span');
+                letterSpan.textContent = letter;
+                letterSpan.style.animationDelay = `${index * 0.01}s`;
+                messageDiv.appendChild(letterSpan);
+            });
             chatDiv.appendChild(messageDiv);
             return messageDiv;
         }
 
+
         function addLoadingSpinner(element) {
             const loaderDiv = document.createElement('div');
             loaderDiv.className = 'loader';
-            element.appendChild(loaderDiv); // Ajouter l'animation de chargement à l'élément spécifié
+            element.appendChild(loaderDiv);
         }
 
         function parseAndDisplayTable(responseText, element) {
             if (responseText.includes('asc[') && responseText.includes('data[')) {
-                // Parse et affiche le tableau si les balises spécifiques sont trouvées
                 const lines = responseText.split(']');
                 const table = document.createElement('table');
                 table.border = '1';
-
                 lines.forEach(line => {
-                    if (line.trim().length === 0) {
-                        return; // Ignorer les lignes vides
-                    }
+                    if (line.trim().length === 0) return;
                     const parts = line.split('[');
-                    if (parts.length < 2) {
-                        return; // Ignorer les lignes mal formatées
-                    }
-                    const type = parts[0].trim(); // 'asc' ou 'data'
+                    if (parts.length < 2) return;
+                    const type = parts[0].trim();
                     const content = parts[1];
                     const cells = content.split('|');
-
                     const row = table.insertRow();
                     cells.forEach(cell => {
                         const cellContent = cell.trim();
                         if (cellContent.length > 0) {
-                            const cellElement = (type === 'asc' ? row.insertCell() : row.insertCell());
+                            const cellElement = row.insertCell();
                             cellElement.textContent = cellContent;
                             if (type === 'asc') {
                                 cellElement.style.fontWeight = 'bold';
@@ -129,12 +165,25 @@
                         }
                     });
                 });
-
-                element.textContent = ''; // Effacer le texte existant ou l'animation de chargement
-                element.appendChild(table); // Ajouter le tableau à l'élément
+                element.textContent = '';
+                element.appendChild(table);
             } else {
-                // Affiche simplement le texte si aucun indicateur de tableau n'est présent
-                element.textContent = responseText;
+                element.innerHTML = ''; // Vider le contenu de l'élément
+                const textContainer = document.createElement('div');
+                const textContent = document.createElement('span');
+                textContainer.appendChild(textContent);
+                element.appendChild(textContainer);
+
+                let index = 0;
+                const typeText = () => {
+                    if (index < responseText.length) {
+                        textContent.textContent += responseText.charAt(index);
+                        index++;
+                        setTimeout(typeText, 1); // Ajustez la vitesse d'animation ici (50 ms dans ce cas)
+                    }
+                };
+
+                setTimeout(typeText, 1); // Début de l'animation après un court délai
             }
         }
     </script>
