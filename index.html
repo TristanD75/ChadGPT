@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav>
+    <nav class="nav">
         <button class="create">
             <div class="rect">
                 <div class="rect1"></div>
@@ -19,7 +19,7 @@
             </div>
         </button>
     </nav>
-    <main>
+    <main id="main">
         <div class="fleche" id="close">
             <div class="top-bar"></div>
             <div class="bottom-bar"></div>
@@ -55,7 +55,6 @@
                 isExpanded = false;
             }
         });
-
 
         fleche.addEventListener('mouseover', function() {
             if (isExpanded) {
@@ -145,7 +144,14 @@
             if (responseText.includes('asc[') && responseText.includes('data[')) {
                 const lines = responseText.split(']');
                 const table = document.createElement('table');
-                table.border = '1';
+                table.style.borderCollapse = 'collapse'; // Assure que les bordures des cellules ne se doublent pas
+                let cellIndex = 0;  // Compteur global pour toutes les cellules du tableau
+                const tableContainer = document.createElement('div');
+                tableContainer.style.overflowX = 'auto'; // Permet le défilement horizontal
+                tableContainer.style.overflowY = 'hidden'; // Pas de défilement vertical
+                tableContainer.style.height = '100%'; // Prend la hauteur maximale disponible
+                tableContainer.style.width = '100%';
+
                 lines.forEach(line => {
                     if (line.trim().length === 0) return;
                     const parts = line.split('[');
@@ -154,38 +160,46 @@
                     const content = parts[1];
                     const cells = content.split('|');
                     const row = table.insertRow();
+
                     cells.forEach(cell => {
                         const cellContent = cell.trim();
                         if (cellContent.length > 0) {
                             const cellElement = row.insertCell();
                             cellElement.textContent = cellContent;
+                            cellElement.style.border = '1px solid rgba(0, 0, 0, 0)';
+                            cellElement.style.opacity = 0;
+                            cellElement.style.animation = `fade-in-cell 1s forwards`;
+                            cellElement.style.animationDelay = `${cellIndex * 0.02}s`;
+                            cellIndex++;
+
                             if (type === 'asc') {
                                 cellElement.style.fontWeight = 'bold';
                             }
                         }
                     });
                 });
+
+                tableContainer.appendChild(table);
                 element.textContent = '';
-                element.appendChild(table);
+                element.appendChild(tableContainer);
             } else {
+                element.style.overflowX = 'visible'; // Aucun défilement horizontal nécessaire pour le texte
+                element.style.overflowY = 'visible'; // Aucun défilement vertical nécessaire pour le texte
                 element.innerHTML = ''; // Vider le contenu de l'élément
                 const textContainer = document.createElement('div');
-                const textContent = document.createElement('span');
-                textContainer.appendChild(textContent);
                 element.appendChild(textContainer);
 
-                let index = 0;
-                const typeText = () => {
-                    if (index < responseText.length) {
-                        textContent.textContent += responseText.charAt(index);
-                        index++;
-                        setTimeout(typeText, 1); // Ajustez la vitesse d'animation ici (50 ms dans ce cas)
-                    }
-                };
-
-                setTimeout(typeText, 1); // Début de l'animation après un court délai
+                responseText.split('').forEach((letter, index) => {
+                    const letterSpan = document.createElement('span');
+                    letterSpan.textContent = letter;
+                    letterSpan.style.opacity = 0;
+                    letterSpan.style.animation = `fade-in 0.5s forwards`;
+                    letterSpan.style.animationDelay = `${index * 0.01}s`;
+                    textContainer.appendChild(letterSpan);
+                });
             }
         }
+
     </script>
 </body>
 </html>
