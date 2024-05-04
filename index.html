@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ChadGPT</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
 </head>
 <body>
     <nav class="nav">
@@ -29,7 +32,7 @@
                 <div class="title_text">ChadGPT</div>
                 <div class="title_example">Pour des réponses plus pertinentes, envoyez au minimum 5 informations.</div>
             </div>
-            <div class="loader" id="loading" style="display: none;"></div> <!-- Zone d'affichage des réponses de l'IA -->
+            <div class="loader" id="loading" style="display: none;"></div>
         </div>
         <div class="sub">
             <textarea class="search" id="userInput" rows="6" cols="35" placeholder="Rechercher une personne..."></textarea><br>
@@ -39,189 +42,5 @@
             </button>
         </div>
     </main>
-        <script>
-
-        document.addEventListener("DOMContentLoaded", function() {
-        var main = document.querySelector('main');
-        var nav = document.querySelector('nav');
-        var fleche = document.querySelector('.fleche');
-        var topBar = document.querySelector('.top-bar');
-        var bottomBar = document.querySelector('.bottom-bar');
-        var isExpanded = false; // État pour suivre si main est expandu
-        const chatDiv = document.querySelector('.chat');
-
-        fleche.addEventListener('click', function() {
-            if (!isExpanded) {
-                main.style.width = 'calc(100% - 44px)';
-                nav.style.display = 'none';
-                isExpanded = true;
-            } else {
-                nav.style.display = 'block';
-                main.style.width = 'calc(100% - 280px - 23px - 22px)'; // Réinitialisez à la largeur initiale
-                isExpanded = false;
-            }
-        });
-
-        fleche.addEventListener('mouseover', function() {
-            if (isExpanded) {
-                topBar.style.transform = 'rotate(-30deg)';
-                bottomBar.style.transform = 'rotate(30deg)';
-            } else {
-                topBar.style.transform = 'rotate(30deg)';
-                bottomBar.style.transform = 'rotate(-30deg)';
-            }
-        });
-
-        fleche.addEventListener('mouseout', function() {
-            topBar.style.transform = 'rotate(0deg)';
-            bottomBar.style.transform = 'rotate(0deg)';
-        });
-
-    });
-
-        document.getElementById('userInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault(); // Empêcher la création d'une nouvelle ligne
-                handleSendButtonClick(); // Envoyer le message
-            }
-        });
-
-        const ws = new WebSocket('ws://localhost:8765');
-        const chatDiv = document.querySelector('.chat');
-        let shouldScroll;
-
-        ws.onopen = function() {
-            ws.send('session_' + Date.now());
-        };
-
-        ws.onmessage = function(event) {
-            const responseElement = document.querySelector('.response.loading');
-            parseAndDisplayTable(event.data, responseElement);
-            responseElement.classList.remove('loading');
-            if (shouldScroll) {
-                chatDiv.scrollTop = chatDiv.scrollHeight;
-            }
-        };
-
-
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.addedNodes.length > 0 && mutation.addedNodes[0].nodeType === Node.ELEMENT_NODE) {
-                    document.querySelector('.title').style.display = 'none';
-                }
-            });
-        });
-
-        // Configurer les options de l'observateur
-        const observerConfig = { childList: true, subtree: true };
-
-        // Démarrer l'observation du chat
-        observer.observe(chatDiv, observerConfig);
-
-        function handleSendButtonClick() {
-            const userInput = document.getElementById('userInput');
-            if (userInput.value.trim() !== '') {
-                shouldScroll = chatDiv.scrollHeight - chatDiv.clientHeight <= chatDiv.scrollTop + 60;
-                createMessageElement(userInput.value, 'user');
-                const responseElement = createMessageElement('', 'response loading');
-                addLoadingSpinner(responseElement);
-                ws.send(userInput.value);
-                userInput.value = '';
-                if (shouldScroll) {
-                    chatDiv.scrollTop = chatDiv.scrollHeight;
-                }
-            }
-        }
-
-        function createMessageElement(text, type) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            if (type.includes('response')) {
-                messageDiv.classList.add('response');
-            } else {
-                messageDiv.classList.add('user');
-            }
-            if (type.includes('loading')) {
-                messageDiv.classList.add('loading');
-            }
-            text.split('').forEach((letter, index) => {
-                const letterSpan = document.createElement('span');
-                letterSpan.textContent = letter;
-                letterSpan.style.animationDelay = `${index * 0.01}s`;
-                messageDiv.appendChild(letterSpan);
-            });
-            chatDiv.appendChild(messageDiv);
-            return messageDiv;
-        }
-
-
-        function addLoadingSpinner(element) {
-            const loaderDiv = document.createElement('div');
-            loaderDiv.className = 'loader';
-            element.appendChild(loaderDiv);
-        }
-
-        function parseAndDisplayTable(responseText, element) {
-            if (responseText.includes('asc[') && responseText.includes('data[')) {
-                const lines = responseText.split(']');
-                const table = document.createElement('table');
-                table.style.borderCollapse = 'collapse'; // Assure que les bordures des cellules ne se doublent pas
-                let cellIndex = 0;  // Compteur global pour toutes les cellules du tableau
-                const tableContainer = document.createElement('div');
-                tableContainer.style.overflowX = 'auto'; // Permet le défilement horizontal
-                tableContainer.style.overflowY = 'hidden'; // Pas de défilement vertical
-                tableContainer.style.height = '100%'; // Prend la hauteur maximale disponible
-                tableContainer.style.width = '100%';
-
-                lines.forEach(line => {
-                    if (line.trim().length === 0) return;
-                    const parts = line.split('[');
-                    if (parts.length < 2) return;
-                    const type = parts[0].trim();
-                    const content = parts[1];
-                    const cells = content.split('|');
-                    const row = table.insertRow();
-
-                    cells.forEach(cell => {
-                        const cellContent = cell.trim();
-                        if (cellContent.length > 0) {
-                            const cellElement = row.insertCell();
-                            cellElement.textContent = cellContent;
-                            cellElement.style.border = '1px solid rgba(0, 0, 0, 0)';
-                            cellElement.style.opacity = 0;
-                            cellElement.style.animation = `fade-in-cell 1s forwards`;
-                            cellElement.style.animationDelay = `${cellIndex * 0.02}s`;
-                            cellIndex++;
-
-                            if (type === 'asc') {
-                                cellElement.style.fontWeight = 'bold';
-                            }
-                        }
-                    });
-                });
-
-                tableContainer.appendChild(table);
-                element.textContent = '';
-                element.appendChild(tableContainer);
-            } else {
-                element.style.overflowX = 'visible'; // Aucun défilement horizontal nécessaire pour le texte
-                element.style.overflowY = 'visible'; // Aucun défilement vertical nécessaire pour le texte
-                element.innerHTML = ''; // Vider le contenu de l'élément
-                const textContainer = document.createElement('div');
-                element.appendChild(textContainer);
-
-                responseText.split('').forEach((letter, index) => {
-                    const letterSpan = document.createElement('span');
-                    letterSpan.textContent = letter;
-                    letterSpan.style.opacity = 0;
-                    letterSpan.style.animation = `fade-in 0.5s forwards`;
-                    letterSpan.style.animationDelay = `${index * 0.01}s`;
-                    textContainer.appendChild(letterSpan);
-                });
-            }
-        }
-
-    </script>
 </body>
 </html>
-
