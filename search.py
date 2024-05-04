@@ -72,7 +72,7 @@ async def handler(websocket, path):
     session_id = await websocket.recv()
     if session_id not in sessions:
         sessions[session_id] = []
-        print("System: New session created")
+        print("New session created")
 
     first_user_message = None
 
@@ -83,14 +83,14 @@ async def handler(websocket, path):
             first_user_message = message
 
         keywords = extract_keywords(message)
-        print(f"AI 1: Extracted keywords: {keywords}")
+        print(f"Informations extracted! Searching the web...")
 
         query = '+'.join(keywords)
         search_results = await search_duckduckgo_async(query)
-        print("Search algorithm output:", search_results)
+        print("Creating table...")
 
         summary = await summarize_results(first_user_message, search_results)
-        print(f"AI 2: Summary of results: {summary}")
+        print(f"Finished! Merci Tristan")
 
         await websocket.send(f"{summary}")
 
