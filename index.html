@@ -25,6 +25,10 @@
             <div class="bottom-bar"></div>
         </div>
         <div class="chat">
+            <div class="title">
+                <div class="title_text">ChadGPT</div>
+                <div class="title_example">Pour des réponses plus pertinentes, envoyez au minimum 5 informations.</div>
+            </div>
             <div class="loader" id="loading" style="display: none;"></div> <!-- Zone d'affichage des réponses de l'IA -->
         </div>
         <div class="sub">
@@ -36,6 +40,7 @@
         </div>
     </main>
         <script>
+
         document.addEventListener("DOMContentLoaded", function() {
         var main = document.querySelector('main');
         var nav = document.querySelector('nav');
@@ -43,6 +48,7 @@
         var topBar = document.querySelector('.top-bar');
         var bottomBar = document.querySelector('.bottom-bar');
         var isExpanded = false; // État pour suivre si main est expandu
+        const chatDiv = document.querySelector('.chat');
 
         fleche.addEventListener('click', function() {
             if (!isExpanded) {
@@ -96,6 +102,21 @@
                 chatDiv.scrollTop = chatDiv.scrollHeight;
             }
         };
+
+
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.addedNodes.length > 0 && mutation.addedNodes[0].nodeType === Node.ELEMENT_NODE) {
+                    document.querySelector('.title').style.display = 'none';
+                }
+            });
+        });
+
+        // Configurer les options de l'observateur
+        const observerConfig = { childList: true, subtree: true };
+
+        // Démarrer l'observation du chat
+        observer.observe(chatDiv, observerConfig);
 
         function handleSendButtonClick() {
             const userInput = document.getElementById('userInput');
