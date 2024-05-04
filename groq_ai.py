@@ -5,8 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import time
-import re
 
 api_key = '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'
 client1 = Groq(api_key=api_key)
