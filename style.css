@@ -196,7 +196,7 @@ body {
         left: 0;
     }
     50% {
-        left: 40px; /* Ajustez ceci selon la largeur du conteneur de l'animation */
+        left: 40px;
     }
 }
 
@@ -215,9 +215,8 @@ body {
 .response {
     text-align: left;
     display: flex;
-    flex-wrap: wrap;
     flex-direction: column;
-    flex-direction: row;
+    gap: 10px;
 }
 
 table {
@@ -227,10 +226,25 @@ table {
 }
 
   table td, table th {
-    border: 1px solid rgb(71, 71, 71); /* Bordures de cellules */
-    background-color: transparent; /* Fond transparent */
+    border: 1px solid rgb(71, 71, 71);
+    background-color: transparent;
     padding: 8px;
   }
+
+.download-icon {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    fill:rgb(63, 63, 63);
+    position: relative;
+    bottom: 0;
+    transition: all 0.1s;
+}
+.download-icon:hover {
+    transition: all 0.1s;
+    fill: white;
+}
+
 
 .icon_submit {
     height: calc(50px - 26px);
