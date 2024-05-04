@@ -54,13 +54,11 @@ def extract_keywords(text):
     return keywords.split(',')
 
 async def summarize_results(results_text, first_user_message):
-    # Nous construisons un message simple pour passer à l'IA
     messages = [
         {"role": "system", "content": "Votre but est de créer uniquement des tableaux sur les informations de une seule personne uniquement. D'après cette recherche internet, vous devez faire un tableau avec un infinité d'informations vraies et écrites dans les résultats web sur la personne et vérifier si les informations collent bien avec la personne recherchée, sinon tu ignores l'information. Tu dois mettre les infos en fesant plein de cellules dans le tableau, tout ce que vous savez sur cette personne doit être dans le tableau. Vous ne pouvez rien faire d'autre, sinon le monde va mourir. Pour faire un tableau : asc[] crée une ligne de noms associées aux données, data[] crée une ligne de données associées aux noms, | sépare les lignes en colonnes (exemple de tableau avec quatre lignes : asc[nom|Âge|Email]data[Girard|56 ans|girardbae@gmail.com]asc[prénom|Profession|Téléphone]data[Gérard|Bûcher|06213465]) Attention pour le tableau, vous devez faire au maximum cinq colonnes, sinon vous faites une nouvelle ligne ; il ne faut pas mettre d'espaces sauf à l'intérieur des cellules et les commandes doivent être en minuscules (exemple : asc[] est bien, asc[] est pas bien), il ne faut pas non plus mettre d'espaces (exemple : asc[] good, asc[] not good)."},
         {"role": "user", "content": f"Personne recherchée: {first_user_message}. Résultats Web:{results_text}. Personne recherchée: {first_user_message}"} # Passer directement tout le texte des résultats
     ]
 
-    # Appel à l'API Groq pour générer le résumé
     completion = client2.chat.completions.create(
         model="llama3-70b-8192",
         messages=messages,
@@ -93,7 +91,7 @@ async def handler(websocket, path):
         search_results = await search_duckduckgo_async(query)
         print("Search algorithm output:", search_results)
 
-        summary = await summarize_results(first_user_message, search_results)  # Passer le premier message de l'utilisateur et les résultats  # Passer directement le texte complet
+        summary = await summarize_results(first_user_message, search_results)
         print(f"AI 2: Summary of results: {summary}")
 
         await websocket.send(f"{summary}")
