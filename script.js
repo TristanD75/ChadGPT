@@ -21,17 +21,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
     fleche.addEventListener('mouseover', function() {
         if (isExpanded) {
-            topBar.style.transform = 'rotate(-30deg)';
-            bottomBar.style.transform = 'rotate(30deg)';
+            topBar.style.transform = 'rotate(-20deg)';
+            bottomBar.style.transform = 'rotate(20deg)';
+            topBar.style.backgroundColor = 'white';
+            bottomBar.style.backgroundColor = 'white';
         } else {
-            topBar.style.transform = 'rotate(30deg)';
-            bottomBar.style.transform = 'rotate(-30deg)';
+            topBar.style.transform = 'rotate(20deg)';
+            bottomBar.style.transform = 'rotate(-20deg)';
+            topBar.style.backgroundColor = 'white';
+            bottomBar.style.backgroundColor = 'white';
         }
     });
 
     fleche.addEventListener('mouseout', function() {
         topBar.style.transform = 'rotate(0deg)';
         bottomBar.style.transform = 'rotate(0deg)';
+        topBar.style.backgroundColor = 'rgb(146, 146, 146)';
+        bottomBar.style.backgroundColor = 'rgb(146, 146, 146)';
     });
 
 });
