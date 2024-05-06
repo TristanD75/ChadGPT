@@ -142,7 +142,7 @@ body {
 }
 
 .create {
-    background: linear-gradient(0deg, rgba(23,23,23,0.40) 0%, rgba(23,23,23,1) 65%);
+    background: linear-gradient(0deg, rgba(23,23,23,0.20) 0%, rgba(23,23,23,1) 65%);
     backdrop-filter: blur(12px);
     border: none;
     height: 80px;
