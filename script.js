@@ -9,15 +9,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
     fleche.addEventListener('click', function() {
         if (!isExpanded) {
-            main.style.width = 'calc(100% - 44px)';
-            nav.style.display = 'none';
+            main.style.width = 'calc(100% - 40px)';
+            main.addEventListener('transitionend', function() {
+                nav.style.display = 'none';
+            }, { once: true });
             isExpanded = true;
         } else {
-            nav.style.display = 'block';
-            main.style.width = 'calc(100% - 280px - 23px - 22px)';
+            nav.style.display = 'flex';
+            main.style.width = 'calc(100% - 280px - 40px)';
             isExpanded = false;
         }
-    });
+    });    
 
     fleche.addEventListener('mouseover', function() {
         if (isExpanded) {
